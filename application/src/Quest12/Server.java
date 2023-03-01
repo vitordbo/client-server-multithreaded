@@ -16,13 +16,19 @@ public class Server {
             DatagramSocket socket = new DatagramSocket(PORT);
             System.out.println("Server started on port " + PORT);
 
+            byte[] buffer = new byte[BUFFER_SIZE];
+
             while (true) {
-                byte[] buffer = new byte[BUFFER_SIZE];
+               
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
+                
                 InetAddress clientAddress = packet.getAddress();
                 int clientPort = packet.getPort();
                 String message = new String(packet.getData(), 0, packet.getLength());
+
+                // ver oq colocar aqui => So mensagem??
+                System.out.println("Received message from " + socket.getInetAddress() + " mensasgem = " + message);
 
                 synchronized(messages) {
                     if (expectedSender == getClientId(message)) {

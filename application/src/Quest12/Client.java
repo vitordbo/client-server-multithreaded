@@ -11,16 +11,16 @@ import java.util.Scanner;
 public class Client {
     private static final int PORT = 12345;
     private static final String[] PROCESS_NAMES = {"P1", "P2", "P3", "P4"};
-    private static final String[] PROCESS_IPS = {" 192.168.1.15", " 192.168.1.15", " 192.168.1.15", " 192.168.1.15"};
+    private static final String[] PROCESS_IPS = {"192.168.1.4", "192.168.1.4", "192.168.1.4", "192.168.1.4"};
     private static final int[] PROCESS_PORTS = {12346, 12347, 12348, 12349};
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
         try {
-            InetAddress serverAddress = InetAddress.getByName(" 192.168.1.15");
             DatagramSocket socket = new DatagramSocket();
+            InetAddress serverAddress = InetAddress.getByName("192.168.1.4");
 
+            Scanner scanner = new Scanner(System.in);
             System.out.println("Enter message (type 'exit' to quit):");
 
             String message = scanner.nextLine();
@@ -35,10 +35,11 @@ public class Client {
                     InetAddress address = InetAddress.getByName(processIP);
                     byte[] buffer = message.getBytes();
 
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, processPort);
+                    DatagramPacket packet = new DatagramPacket(message.getBytes(), buffer.length, serverAddress, processPort);
 
                     socket.send(packet);
                     System.out.println("Sent to " + processName + ": " + message);
+                    System.out.println(serverAddress);
                 }
 
                 System.out.println("Enter message (type 'exit' to quit):");

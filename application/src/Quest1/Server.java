@@ -19,13 +19,14 @@ public class Server {
             byte[] buffer = new byte[BUFFER_SIZE];
 
             while (true) {
+                
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 serverSocket.receive(receivePacket);
 
                 String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
                 // ver oq colocar aqui => So mensagem??
-                System.out.println("Received message from " + serverSocket.getInetAddress() + " mensasgem = " + message);
+                System.out.println("Received message, mensasgem = " + message);
 
                 index++;
                 if (index >= CLIENTS.length) {
