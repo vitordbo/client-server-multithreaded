@@ -1,4 +1,4 @@
-package Quest1;
+package Quest1Segun;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

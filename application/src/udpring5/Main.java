@@ -1,19 +1,7 @@
 package udpring5;
 
 public class Main {
-    
-    /* 
-    static int contador = 0;
-    public static void imprime() {
-        
-        * Sincronizar bloco estático
-        * 
-        synchronized (Main.class) {
-            contador++;
-            System.out.println(Thread.currentThread().getName() + ": " +  contador);
-        }
-    }
-    */
+
         public static void main(String[] args) {
         try {
             Client client1 = new Client(1, 5001, 2);
@@ -25,7 +13,7 @@ public class Main {
             Client client4 = new Client(4, 5002, 1);
             Server server4 = new Server(4, 5004, 3);
 
-            
+
             Thread t1 = new Thread(client1);
             Thread t2 = new Thread(server1);
             Thread t3 = new Thread(client2);
@@ -48,4 +36,3 @@ public class Main {
         }
     }
 }
-
