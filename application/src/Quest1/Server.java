@@ -25,7 +25,7 @@ public class Server {
 
                 String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-                // ver oq colocar aqui => So mensagem??
+                // ver oq colocar aqui 
                 System.out.println("Received message, menssage = " + message);
 
                 index++;

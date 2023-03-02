@@ -19,10 +19,6 @@ public class ClientHandler implements Runnable {
             reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            writer.println("Enter your username:");
-            username = reader.readLine();
-            System.out.println("New user connected: " + username);
-
         } catch (IOException e) {
             System.out.println(e);
         }
