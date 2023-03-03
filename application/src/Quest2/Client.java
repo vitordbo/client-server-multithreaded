@@ -20,10 +20,13 @@ public class Client {
         System.out.println("Enter the number to be sent: ");
         int number = sc.nextInt();
 
-        String message = processId + "-" + number;
+        System.out.println("Enter the Id for the destination (1, 2, 3, or 4): ");
+        int processIdDesti = sc.nextInt(); // id from destination
+
+        String message = processId + "-" + number + "-" + processIdDesti;
         byte[] sendData = message.getBytes();
 
-        InetAddress address = InetAddress.getByName("10.70.1.229"); // ip from ther other pc
+        InetAddress address = InetAddress.getByName("localhost"); // ip from ther other pc
         int port = 12345;
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
@@ -32,7 +35,7 @@ public class Client {
         Thread sendThread = new Thread(() -> {
             try {
                 socket.send(sendPacket);
-                String log = processId + " sent " + message + " to all";
+                String log = processId + " sent " + message + " to all and to destination = " + getDesti(processIdDesti);
                 System.out.println(log);
                 logs.put(processId, logs.getOrDefault(processId, "") + log + "\n");
             } catch (IOException e) {
@@ -50,10 +53,10 @@ public class Client {
                 socket.receive(packet);
 
                 String received = new String(packet.getData(), 0, packet.getLength());
-                int processId1 = Integer.parseInt(received.split("-")[0]);
-                int number1 = Integer.parseInt(received.split("-")[1]);
+                int id = Integer.parseInt(received.split("-")[0]);
+                int IdDestina = Integer.parseInt(received.split("-")[1]);
 
-                String log1 = "Received " + received + " from " + getPreviousProcessId(processId);
+                String log1 = "Received " + received + " from " + IdDestina;
                 System.out.println(log1);
                 logs.put(processId, logs.getOrDefault(processId, "") + log1 + "\n");
 
@@ -65,16 +68,16 @@ public class Client {
         receiveThread.start();
     }
 
-    private static int getPreviousProcessId(int currentProcessId) {
+    private static int getDesti(int currentProcessId) {
         switch (currentProcessId) {
             case 1:
-                return 4;
-            case 2:
                 return 1;
-            case 3:
+            case 2:
                 return 2;
-            case 4:
+            case 3:
                 return 3;
+            case 4:
+                return 4;
             default:
                 return -1;
         }
