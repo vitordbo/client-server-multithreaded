@@ -60,29 +60,14 @@ public class Server {
                 }
             }
             
+            //unicast
             System.out.println("----------------------------------");
-            
             String received = new String(receivePacket.getData(), 0, receivePacket.getLength());
             int processId1 = Integer.parseInt(received.split("-")[0]);
-            int number1 = Integer.parseInt(received.split("-")[2]);
+            int dest = Integer.parseInt(received.split("-")[2]); //dest 
 
-            String log1 = number1 + " Received " + received + " from " + getDesti(processId1);
+            String log1 = dest + " Received " + received + " from " + processId1;
             System.out.println(log1);
-        }
-
-        private static int getDesti(int currentProcessId) {
-            switch (currentProcessId) {
-                case 1:
-                    return 1;
-                case 2:
-                    return 2;
-                case 3:
-                    return 3;
-                case 4:
-                    return 4;
-                default:
-                    return -1;
-            }
         }
     }
 }

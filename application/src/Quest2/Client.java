@@ -23,6 +23,7 @@ public class Client {
         System.out.println("Enter the Id for the destination (1, 2, 3, or 4): ");
         int processIdDesti = sc.nextInt(); // id from destination
 
+        // recieves the id destination
         String message = processId + "-" + number + "-" + processIdDesti;
         byte[] sendData = message.getBytes();
 
