@@ -23,29 +23,46 @@ public class Client {
         String message = processId + "-" + number;
         byte[] sendData = message.getBytes();
 
-        InetAddress address = InetAddress.getLocalHost();
+        InetAddress address = InetAddress.getByName("10.215.18.89"); // get by name no meu ip
         int port = 12345;
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
-        socket.send(sendPacket);
-
-        String log = processId + " sent " + message + " to " + getNextProcessId(processId);
-        System.out.println(log);
-        logs.put(processId, logs.getOrDefault(processId, "") + log + "\n");
+        
+        // Create a thread for sending the message
+        Thread sendThread = new Thread(() -> {
+            try {
+                socket.send(sendPacket);
+                String log = processId + " sent " + message + " to " + getNextProcessId(processId);
+                System.out.println(log);
+                logs.put(processId, logs.getOrDefault(processId, "") + log + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        sendThread.start();
 
         byte[] buffer = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        socket.receive(packet);
+        
+        // Create a thread for receiving the message
+        Thread receiveThread = new Thread(() -> {
+            try {
+                socket.receive(packet);
 
-        String received = new String(packet.getData(), 0, packet.getLength());
-        int processId1 = Integer.parseInt(received.split("-")[0]);
-        int number1 = Integer.parseInt(received.split("-")[1]);
+                String received = new String(packet.getData(), 0, packet.getLength());
+                int processId1 = Integer.parseInt(received.split("-")[0]);
+                int number1 = Integer.parseInt(received.split("-")[1]);
 
-        String log1 = "Received " + received + " from " + getPreviousProcessId(processId);
-        System.out.println(log1);
-        logs.put(processId, logs.getOrDefault(processId, "") + log1 + "\n");
+                String log1 = "Received " + received + " from " + getPreviousProcessId(processId);
+                System.out.println(log1);
+                logs.put(processId, logs.getOrDefault(processId, "") + log1 + "\n");
 
-        socket.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        receiveThread.start();
     }
 
     private static int getNextProcessId(int currentProcessId) {

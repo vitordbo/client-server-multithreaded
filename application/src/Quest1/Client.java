@@ -13,7 +13,7 @@ public class Client {
     public static void main(String[] args) {
         try {
             DatagramSocket clientSocket = new DatagramSocket();
-            InetAddress serverAddress = InetAddress.getByName("10.215.6.95"); // 192.168.1.15 ou localhost
+            InetAddress serverAddress = InetAddress.getByName("10.70.1.216"); // 192.168.1.15 ou localhost
 
             Scanner scanner = new Scanner(System.in);
             while (true) {
