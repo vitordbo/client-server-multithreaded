@@ -32,7 +32,7 @@ public class Client {
         Thread sendThread = new Thread(() -> {
             try {
                 socket.send(sendPacket);
-                String log = processId + " sent " + message + " to " + getNextProcessId(processId);
+                String log = processId + " sent " + message + " to all";
                 System.out.println(log);
                 logs.put(processId, logs.getOrDefault(processId, "") + log + "\n");
             } catch (IOException e) {
@@ -63,21 +63,6 @@ public class Client {
             }
         });
         receiveThread.start();
-    }
-
-    private static int getNextProcessId(int currentProcessId) {
-        switch (currentProcessId) {
-            case 1:
-                return 2;
-            case 2:
-                return 3;
-            case 3:
-                return 4;
-            case 4:
-                return 1;
-            default:
-                return -1;
-        }
     }
 
     private static int getPreviousProcessId(int currentProcessId) {

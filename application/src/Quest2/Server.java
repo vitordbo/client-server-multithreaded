@@ -40,19 +40,17 @@ public class Server {
 
             // Evaluate message content
             String[] parts = message.split("-");
-            int processId = Integer.parseInt(parts[0]);
             int value = Integer.parseInt(parts[1]);
 
             // Create a new message with the process id and the new value
-            int nextProcessId = 1;
-            String newMessage = nextProcessId + "-" + value;
+            String newMessage = "" + value;
 
             // Send the new message to all other processes in the network
             byte[] sendData = newMessage.getBytes();
 
             // broadcast
-            // Iterate through all possible process IDs except for the center node
-            for (int i = 2; i <= 4; i++) {
+            // Iterate through all possible process IDs
+            for (int i = 1; i <= 4; i++) {
                 try {
                     DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), PORT + i);
                     serverSocket.send(sendPacket);
