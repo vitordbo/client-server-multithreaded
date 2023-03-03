@@ -3,47 +3,86 @@ package Quest1;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 
 public class Server {
     private static final int PORT = 12345;
     private static final int BUFFER_SIZE = 1024;
-    private static final String[] CLIENTS = {"P1", "P2", "P3", "P4"};
-    private static int index = 0;
 
-    public static void main(String[] args) {
-        try {
-            DatagramSocket serverSocket = new DatagramSocket(PORT);
-            System.out.println("Server started at port " + PORT);
+    public static void main(String[] args) throws IOException {
+        DatagramSocket serverSocket = new DatagramSocket(PORT);
+        System.out.println("Server started...");
 
-            byte[] buffer = new byte[BUFFER_SIZE];
+        byte[] receiveData = new byte[BUFFER_SIZE];
 
-            while (true) {
-                
-                DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
-                serverSocket.receive(receivePacket);
+        while (true) {
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            serverSocket.receive(receivePacket);
 
-                String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            MessageHandler handler = new MessageHandler(serverSocket, receivePacket);
+            Thread thread = new Thread(handler);
+            thread.start();
+        }
+    }
 
-                // ver oq colocar aqui 
-                System.out.println("Received message, menssage = " + message);
+    private static int getNextProcessId(int currentProcessId) {
+        switch (currentProcessId) {
+            case 1:
+                return 2;
+            case 2:
+                return 3;
+            case 3:
+                return 4;
+            case 4:
+                return 1;
+            default:
+                return -1;
+        }
+    }
 
-                index++;
-                if (index >= CLIENTS.length) {
-                    index = 0;
-                }
+    private static class MessageHandler implements Runnable {
+        private DatagramSocket serverSocket;
+        private DatagramPacket receivePacket;
 
-                InetAddress address = receivePacket.getAddress();
-                int port = receivePacket.getPort();
+        public MessageHandler(DatagramSocket serverSocket, DatagramPacket receivePacket) {
+            this.serverSocket = serverSocket;
+            this.receivePacket = receivePacket;
+        }
 
-                String response = CLIENTS[index];
-                DatagramPacket sendPacket = new DatagramPacket(response.getBytes(), response.length(), address, port);
-                serverSocket.send(sendPacket);
+        @Override
+        public void run() {
+            String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            System.out.println("Received message: " + message);
 
-                System.out.println("Sent message to " + response);
+            // Evaluate message content
+            String[] parts = message.split("-");
+            int processId = Integer.parseInt(parts[0]);
+            int value = Integer.parseInt(parts[1]);
+
+            if (value % 2 == 0) {
+                // Multiply the number by 2 if the process id is even
+                value *= 2;
+            } else if (value % 2 != 0 && processId % 2 != 0) {
+                // Only pass the number if the process id is odd and the value is odd
+            } else {
+                // Invalid input
+                System.out.println("Invalid input: " + message);
+                return;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            // Create a new message with the process id and the new value
+            int nextProcessId = getNextProcessId(processId);
+            String newMessage = nextProcessId + "-" + value;
+
+            // Send the new message to the next process in the ring
+            byte[] sendData = newMessage.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
+
+            try {
+                serverSocket.send(sendPacket);
+                System.out.println("Sent message: " + newMessage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

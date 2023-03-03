@@ -1,37 +1,97 @@
 package Quest1;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Scanner;
+import java.net.*;
+import java.io.*;
+import java.util.*;
 
 public class Client {
-    private static final int PORT = 12345;
-    private static final int BUFFER_SIZE = 1024;
+    private static DatagramSocket socket;
+    private static Map<Integer, String> logs = new HashMap<>();
 
-    public static void main(String[] args) {
-        try {
-            DatagramSocket clientSocket = new DatagramSocket();
-            InetAddress serverAddress = InetAddress.getByName("10.70.1.216"); // 192.168.1.15 ou localhost
+    public static void main(String[] args) throws IOException {
+        socket = new DatagramSocket();
 
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                System.out.print("Enter message: ");
-                String message = scanner.nextLine();
+        System.out.println("Client started...");
 
-                DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), serverAddress, PORT);
-                clientSocket.send(sendPacket);
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the process ID (1, 2, 3, or 4): ");
+        int processId = sc.nextInt();
 
-                byte[] buffer = new byte[BUFFER_SIZE];
-                DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
-                clientSocket.receive(receivePacket);
+        System.out.println("Enter the number to be sent: ");
+        int number = sc.nextInt();
 
-                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                System.out.println("Received message from " + response);
+        String message = processId + "-" + number;
+        byte[] sendData = message.getBytes();
+
+        InetAddress address = InetAddress.getByName("10.70.1.229"); // ip from ther other pc
+        int port = 12345;
+
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
+        
+        // Create a thread for sending the message
+        Thread sendThread = new Thread(() -> {
+            try {
+                socket.send(sendPacket);
+                String log = processId + " sent " + message + " to " + getNextProcessId(processId);
+                System.out.println(log);
+                logs.put(processId, logs.getOrDefault(processId, "") + log + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        });
+        sendThread.start();
+
+        byte[] buffer = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        
+        // Create a thread for receiving the message
+        Thread receiveThread = new Thread(() -> {
+            try {
+                socket.receive(packet);
+
+                String received = new String(packet.getData(), 0, packet.getLength());
+                int processId1 = Integer.parseInt(received.split("-")[0]);
+                int number1 = Integer.parseInt(received.split("-")[1]);
+
+                String log1 = "Received " + received + " from " + getPreviousProcessId(processId);
+                System.out.println(log1);
+                logs.put(processId, logs.getOrDefault(processId, "") + log1 + "\n");
+
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        receiveThread.start();
+    }
+
+    private static int getNextProcessId(int currentProcessId) {
+        switch (currentProcessId) {
+            case 1:
+                return 2;
+            case 2:
+                return 3;
+            case 3:
+                return 4;
+            case 4:
+                return 1;
+            default:
+                return -1;
+        }
+    }
+
+    private static int getPreviousProcessId(int currentProcessId) {
+        switch (currentProcessId) {
+            case 1:
+                return 4;
+            case 2:
+                return 1;
+            case 3:
+                return 2;
+            case 4:
+                return 3;
+            default:
+                return -1;
         }
     }
 }
